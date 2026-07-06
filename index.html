@@ -310,7 +310,7 @@
 </style>
 </head>
 <body>
-<audio id="bgMusic" src="KHO GAYE HUM KAHAN (LYRICS)-JASLEEN ROYAL.mp3" autoplay muted playsinline loop preload="auto"></audio>
+<audio id="bgMusic" src="KHO GAYE HUM KAHAN (LYRICS) - JASLEEN ROYAL.mp3" autoplay muted playsinline loop preload="auto"></audio>
 
 <div id="stage">
   <div id="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
@@ -503,25 +503,39 @@ let musicStarted = false;
 
 function tryStartBackgroundMusic(){
   if (!bgMusic) return;
+
   const start = () => {
-    if (musicStarted) return;
-    musicStarted = true;
+    if (musicStarted || !bgMusic) return;
     bgMusic.volume = 0.2;
     bgMusic.currentTime = 0;
-    bgMusic.muted = false;
-    bgMusic.play().catch(() => {
-      musicStarted = false;
-      bgMusic.muted = true;
-      bgMusic.play().catch(() => {});
-    });
+    bgMusic.muted = true;
+    const playPromise = bgMusic.play();
+
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise
+        .then(() => {
+          musicStarted = true;
+          bgMusic.muted = false;
+        })
+        .catch(() => {
+          setTimeout(start, 350);
+        });
+    } else {
+      musicStarted = true;
+      bgMusic.muted = false;
+    }
   };
+
   start();
+  window.addEventListener('load', start, { once: true });
   window.addEventListener('pointerdown', start, { once: true });
   window.addEventListener('touchstart', start, { once: true });
   window.addEventListener('keydown', start, { once: true });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') start();
   });
+  bgMusic.addEventListener('canplaythrough', start, { once: true });
+  bgMusic.addEventListener('loadeddata', start, { once: true });
 }
 tryStartBackgroundMusic();
 
