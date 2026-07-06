@@ -310,7 +310,7 @@
 </style>
 </head>
 <body>
-<audio id="bgMusic" src="KHO GAYE HUM KAHAN (LYRICS) - JASLEEN ROYAL.mp3" loop preload="auto"></audio>
+<audio id="bgMusic" src="KHO GAYE HUM KAHAN ( LYRICS) - JASLEEN ROYAL.mp3" autoplay muted playsinline loop preload="auto"></audio>
 
 <div id="stage">
   <div id="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
@@ -502,16 +502,26 @@ const bgMusic = $('#bgMusic');
 let musicStarted = false;
 
 function tryStartBackgroundMusic(){
-  if (musicStarted || !bgMusic) return;
-  musicStarted = true;
+  if (!bgMusic) return;
   const start = () => {
+    if (musicStarted) return;
+    musicStarted = true;
     bgMusic.volume = 0.2;
     bgMusic.currentTime = 0;
-    bgMusic.play().catch(()=>{});
+    bgMusic.muted = false;
+    bgMusic.play().catch(() => {
+      musicStarted = false;
+      bgMusic.muted = true;
+      bgMusic.play().catch(() => {});
+    });
   };
   start();
   window.addEventListener('pointerdown', start, { once: true });
+  window.addEventListener('touchstart', start, { once: true });
   window.addEventListener('keydown', start, { once: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') start();
+  });
 }
 tryStartBackgroundMusic();
 
