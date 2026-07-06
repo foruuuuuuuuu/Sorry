@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>A Small Mission, For Zaima</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -28,19 +28,23 @@
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{
-    width:100%;min-height:100%;overflow-x:hidden;
+    width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;
     background:var(--bg-0);
     color:var(--ink-0);
     font-family:var(--body);
     cursor:none;
+    -webkit-text-size-adjust:100%;
   }
-  body{min-height:100svh;min-height:100dvh;}
+  body{
+    display:flex;align-items:center;justify-content:center;
+    padding:clamp(12px,2.5vw,24px);
+  }
   @media (max-width:820px), (hover:none){
     html,body{cursor:auto;}
   }
   ::selection{background:var(--lav);color:#100821;}
 
-  #stage{position:fixed;inset:0;overflow:hidden;min-height:100svh;min-height:100dvh;}
+  #stage{position:fixed;inset:0;overflow:hidden;}
 
   /* ---------- background layers ---------- */
   #aurora{position:fixed;inset:-10%;z-index:0;filter:blur(60px) saturate(130%);opacity:.75;pointer-events:none;}
@@ -77,14 +81,6 @@
     opacity:0;transition:opacity .5s;}
   #meterLabel.show{opacity:1;}
 
-  /* ---------- sound toggle ---------- */
-  #soundBtn{position:fixed;top:14px;left:16px;z-index:60;width:38px;height:38px;border-radius:50%;
-    background:var(--glass);border:1px solid var(--glass-brd);backdrop-filter:blur(12px);
-    display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--ink-1);
-    cursor:pointer;transition:transform .25s var(--ease), background .25s;opacity:0;}
-  #soundBtn.show{opacity:1;}
-  #soundBtn:hover{transform:scale(1.08);background:var(--glass-hi);}
-
   /* ---------- floating easter-egg layer ---------- */
   #eggLayer{position:fixed;inset:0;z-index:5;pointer-events:none;}
   .egg{position:absolute;pointer-events:auto;cursor:pointer;font-size:18px;opacity:.55;
@@ -104,14 +100,14 @@
   #toast.show{opacity:1;transform:translate(-50%,0);}
 
   /* ---------- scenes ---------- */
-  #sceneWrap{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;min-height:100svh;min-height:100dvh;padding:0;}
+  #sceneWrap{position:relative;z-index:10;width:min(100%,760px);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);}
   .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    padding:24px;opacity:0;pointer-events:none;transform:scale(1.035);overflow-x:hidden;overflow-y:auto;
+    padding:clamp(14px,3vw,24px);opacity:0;pointer-events:none;transform:scale(1.035);
     transition:opacity .7s var(--ease), transform .7s var(--ease);}
   .scene.active{opacity:1;pointer-events:auto;transform:scale(1);}
   .scene.leaving{opacity:0;transform:scale(.96);}
 
-  .panel{width:100%;max-width:620px;text-align:center;}
+  .panel{width:100%;max-width:620px;margin:0 auto;text-align:center;}
 
   .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--lav);
     margin-bottom:14px;opacity:.85;}
@@ -273,45 +269,48 @@
 
   .tiny{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:10px;letter-spacing:.05em;}
 
-  button, .egg, #runHeart{touch-action:manipulation;}
+  /* mobile / tablet refinements */
+  @media (max-width:900px){
+    .panel{max-width:560px;}
+    .radar-wrap{width:160px;height:160px;}
+    .wheel-wrap{width:210px;height:210px;}
+  }
 
-  /* mobile refinements */
   @media (max-width:768px){
-    body{padding-top:env(safe-area-inset-top);}
-    #sceneWrap{align-items:flex-start;}
-    .scene{padding:14px 12px 28px;align-items:flex-start;}
-    .panel{max-width:100%;}
-    .glass-card{padding:18px 14px;border-radius:18px;}
-    .btn{width:100%;justify-content:center;padding:14px 18px;min-height:48px;}
-    .term{min-height:120px;font-size:12.5px;line-height:1.7;}
-    h1.big{font-size:clamp(24px,8vw,34px);}
-    p.sub{font-size:14px;line-height:1.55;}
-    .rowline{font-size:12px;}
-    .radar-wrap{width:140px;height:140px;margin-bottom:14px;}
-    .wheel-wrap{width:180px;height:180px;}
-    #catchZone{height:220px;}
-    #soundBtn{top:12px;left:12px;width:42px;height:42px;}
-    #meterLabel{top:10px;right:10px;font-size:9.5px;}
-    #toast{max-width:calc(100vw - 24px);white-space:normal;text-align:center;}
+    body{padding:10px;}
+    #sceneWrap{width:100%;min-height:100dvh;padding:10px;}
+    .scene{padding:10px;}
+    .glass-card{padding:22px 18px;border-radius:18px;}
+    .btn{padding:13px 22px;font-size:13.5px;width:min(100%,280px);justify-content:center;}
+    .term{font-size:12.5px;line-height:1.8;min-height:140px;}
+    .letter{padding:24px 20px;}
+    .radar-wrap{width:150px;height:150px;}
+    .wheel-wrap{width:200px;height:200px;}
+    .boss-face{font-size:54px;}
+    #catchZone{height:240px;}
   }
 
   @media (max-width:480px){
-    .glass-card{padding:16px 12px;border-radius:16px;}
-    .letter{padding:22px 16px;}
-    .letter h2{font-size:20px;}
-    .letter p{font-size:14px;}
+    body{padding:8px;}
+    #sceneWrap{padding:8px;}
+    .scene{padding:8px;}
+    .glass-card{padding:18px 16px;border-radius:18px;}
+    .btn{margin-top:20px;width:100%;}
+    .letter{padding:20px 16px;}
     .radar-wrap{width:130px;height:130px;}
-    .wheel-wrap{width:164px;height:164px;}
+    .wheel-wrap{width:180px;height:180px;}
+    .term{font-size:12px;line-height:1.7;min-height:120px;}
     .sat{animation-name:orbitS;}
-    .boss-face{font-size:56px;}
-    .cat-face{font-size:54px;}
-    #catchZone{height:200px;}
-    .btn{padding:13px 16px;font-size:13.5px;}
+    .boss-face{font-size:48px;}
+    .truck-track{height:56px;}
+    #catchZone{height:220px;}
+    .rowline{font-size:12px;}
     @keyframes orbitS{from{transform:rotate(0deg) translateX(75px) rotate(0deg);}to{transform:rotate(360deg) translateX(75px) rotate(-360deg);}}
   }
 </style>
 </head>
 <body>
+<audio id="bgMusic" src="KHO GAYE HUM KAHAN ( LYRICS) - JASLEEN ROYAL.mp3" loop preload="auto"></audio>
 
 <div id="stage">
   <div id="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
@@ -323,7 +322,6 @@
 <div id="cursorGlow"></div>
 <div id="smileMeter"><i id="meterFill"></i></div>
 <div id="meterLabel">SMILE METER</div>
-<button id="soundBtn" title="Toggle sound">🔈</button>
 <div id="toast"></div>
 
 <div id="sceneWrap">
@@ -500,6 +498,22 @@ const $ = (s,ctx=document)=>ctx.querySelector(s);
 const $$ = (s,ctx=document)=>[...ctx.querySelectorAll(s)];
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 let soundOn = false;
+const bgMusic = $('#bgMusic');
+let musicStarted = false;
+
+function tryStartBackgroundMusic(){
+  if (musicStarted || !bgMusic) return;
+  musicStarted = true;
+  const start = () => {
+    bgMusic.volume = 0.2;
+    bgMusic.currentTime = 0;
+    bgMusic.play().catch(()=>{});
+  };
+  start();
+  window.addEventListener('pointerdown', start, { once: true });
+  window.addEventListener('keydown', start, { once: true });
+}
+tryStartBackgroundMusic();
 
 /* ============ audio (tiny synthesized blips, no assets) ============ */
 let actx;
@@ -516,11 +530,6 @@ function beep(freq=520, dur=.08, type='sine', vol=.05){
     o.stop(actx.currentTime + dur + 0.02);
   }catch(e){}
 }
-$('#soundBtn').addEventListener('click', ()=>{
-  soundOn = !soundOn;
-  $('#soundBtn').textContent = soundOn ? '🔊' : '🔈';
-  if(soundOn) beep(660,.1);
-});
 
 /* ============ cursor glow ============ */
 const glow = $('#cursorGlow');
@@ -721,7 +730,6 @@ async function initIntro(){
   await typeLine(term, 'Mission started...', 'ok');
   await sleep(300);
   $('#btnBegin').style.display = 'inline-flex';
-  $('#soundBtn').classList.add('show');
 }
 async function typeLine(container, text, cls=''){
   const row = document.createElement('div');
@@ -948,11 +956,9 @@ function initCatch(){
     place();
   }
   heart.addEventListener('pointerenter', flee);
-  heart.addEventListener('pointerdown', async (e)=>{
+  heart.addEventListener('click', async (e)=>{
     heart.classList.add('caught');
-    const x = e.clientX ?? window.innerWidth/2;
-    const y = e.clientY ?? window.innerHeight/2;
-    spawnBurst(x, y, 20);
+    spawnBurst(e.clientX, e.clientY, 20);
     beep(880,.15,'triangle',.07);
     $('#catchMsg').style.opacity = 1;
     await sleep(700);
