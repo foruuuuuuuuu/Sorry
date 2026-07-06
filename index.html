@@ -192,6 +192,10 @@
     border:3px solid var(--rose);padding:10px 22px;border-radius:10px;
     transition:transform .5s cubic-bezier(.34,1.7,.64,1);pointer-events:none;}
   .stamp.show{transform:translate(-50%,-50%) rotate(-14deg) scale(1);}
+  .audio-toggle{position:fixed;left:14px;bottom:14px;z-index:1200;width:36px;height:36px;border:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.22);cursor:pointer;transition:transform .2s ease, background .2s ease;}
+  .audio-toggle:hover{transform:scale(1.05);background:rgba(255,255,255,.24);}
+  .audio-toggle:active{transform:scale(.96);}
+  .audio-toggle i{font-size:16px;line-height:1;}
 
   /* boss fight */
   .boss-face{font-size:64px;transition:transform .35s var(--ease), filter .4s;}
@@ -323,6 +327,9 @@
 <div id="smileMeter"><i id="meterFill"></i></div>
 <div id="meterLabel">SMILE METER</div>
 <div id="toast"></div>
+<button class="audio-toggle" id="audioToggleBtn" type="button" aria-label="Mute audio" title="Mute / Unmute">
+  <i id="audioToggleIcon">🔊</i>
+</button>
 
 <div id="sceneWrap">
 
@@ -499,22 +506,64 @@ const $$ = (s,ctx=document)=>[...ctx.querySelectorAll(s)];
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 let soundOn = false;
 const bgMusic = $('#bgMusic');
+const audioToggleBtn = $('#audioToggleBtn');
+const audioToggleIcon = $('#audioToggleIcon');
 let musicStarted = false;
 
-function startBackgroundMusic(){
-  if (!bgMusic || musicStarted) return;
-  musicStarted = true;
-  bgMusic.volume = 0.2;
-  bgMusic.loop = true;
-  bgMusic.currentTime = 0;
-
-  const playPromise = bgMusic.play();
-  if (playPromise && typeof playPromise.then === 'function') {
-    playPromise.catch(() => {});
+function updateAudioButton(){
+  if (!audioToggleIcon) return;
+  audioToggleIcon.textContent = bgMusic && bgMusic.muted ? '🔇' : '🔊';
+  if (audioToggleBtn) {
+    audioToggleBtn.setAttribute('aria-label', bgMusic && bgMusic.muted ? 'Unmute audio' : 'Mute audio');
+    audioToggleBtn.title = bgMusic && bgMusic.muted ? 'Unmute' : 'Mute';
   }
 }
 
-document.addEventListener('pointerdown', startBackgroundMusic, { once: true, passive: true });
+function startBackgroundMusic(){
+  if (!bgMusic || musicStarted) return;
+
+  const attemptPlay = () => {
+    bgMusic.volume = 0.2;
+    bgMusic.loop = true;
+    bgMusic.currentTime = 0;
+    bgMusic.preload = 'auto';
+
+    const playPromise = bgMusic.play();
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise
+        .then(() => {
+          musicStarted = true;
+        })
+        .catch(() => {
+          musicStarted = false;
+        });
+    } else {
+      musicStarted = true;
+    }
+  };
+
+  if (bgMusic.readyState >= 2) {
+    attemptPlay();
+  } else {
+    bgMusic.load();
+    bgMusic.addEventListener('canplaythrough', attemptPlay, { once: true });
+    bgMusic.addEventListener('loadeddata', attemptPlay, { once: true });
+  }
+}
+
+updateAudioButton();
+
+audioToggleBtn && audioToggleBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  if (!bgMusic) return;
+  bgMusic.muted = !bgMusic.muted;
+  updateAudioButton();
+  if (!musicStarted && !bgMusic.muted) {
+    startBackgroundMusic();
+  }
+});
+
+document.addEventListener('click', startBackgroundMusic, { passive: true });
 
 /* ============ audio (tiny synthesized blips, no assets) ============ */
 let actx;
